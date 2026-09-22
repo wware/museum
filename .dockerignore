@@ -1,0 +1,10 @@
+# Exclude from Docker build context
+.git
+.gitignore
+.claude
+site/
+!docs/*.md
+__pycache__
+*.pyc
+.venv
+.DS_Store

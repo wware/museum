@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Mass-Spring-Damper Simulation (Velocity Verlet)</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: var(--md-text-font, sans-serif);
+            color: var(--md-typeset-color, #333);
+            margin: 20px;
+        }
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-group label {
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .control-group input {
+            width: 100%;
+        }
+        .canvas-container {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .button-row {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background: #fff;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <h3>Interactive System: Velocity Verlet Integration Engine</h3>
+    <p>Set the <strong>Friction Coefficient (f) to 0.00</strong> to watch the symplectic engine maintain perfect conservation of energy over long periods without drifting or losing amplitude.</p>
+
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="massSlider">Mass (m): <span id="massVal">2.0</span></label>
+            <input type="range" id="massSlider" min="0.5" max="10.0" step="0.1" value="2.0">
+        </div>
+        <div class="control-group">
+            <label for="stiffSlider">Spring Stiffness (k): <span id="stiffVal">15.0</span></label>
+            <input type="range" id="stiffSlider" min="1.0" max="50.0" step="0.5" value="15.0">
+        </div>
+        <div class="control-group">
+            <label for="frictionSlider">Friction Coefficient (f): <span id="frictionVal">0.4</span></label>
+            <input type="range" id="frictionSlider" min="0.0" max="5.0" step="0.05" value="0.4">
+        </div>
+    </div>
+
+    <div class="canvas-container" id="simulation-space"></div>
+
+    <div class="button-row">
+        <button id="resetBtn">💥 Disrupt / Reset System</button>
+    </div>
+
+    <script src="mass_spring.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,64 @@
+site_name: Museum of Arcane Curiosities - Interactive Technical Demonstrations
+site_description: A living museum of interactive technical documentation and visualizations
+site_author: Will Ware
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - scheme: default
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+extra_javascript:
+  - https://d3js.org/d3.v7.min.js
+  - js/museum-features.js
+  - js/d3-cluster-visualizer.js
+  - js/mass-spring.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - css/custom.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+
+nav:
+  - Home: index.md
+  - Demonstrations:
+      - Mass-Spring-Damper System: mass-spring.md
+      - GitOps Cluster Visualizer: gitops-visualizer.md
+  - Dashboard: dashboard.md
+  - About: about.md

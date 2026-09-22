@@ -1,0 +1,95 @@
+/* Custom styles for the Hack Museum */
+
+/* Ensure consistent styling for interactive elements */
+.control-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.control-group label {
+    font-size: 0.85em;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+}
+
+/* Button styling consistency */
+button {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #f0f0f0;
+}
+
+/* Museum utilities styling (dark mode support) */
+[data-md-color-scheme="slate"] #museum-utilities {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: #444 !important;
+    color: #eee !important;
+}
+
+[data-md-color-scheme="slate"] #museum-utilities textarea {
+    background: rgba(0, 0, 0, 0.3);
+    color: #eee;
+    border-color: #555;
+}
+
+[data-md-color-scheme="slate"] #museum-utilities button {
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+    border-color: #555;
+}
+
+[data-md-color-scheme="slate"] #museum-utilities button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Canvas container styling */
+.canvas-container {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+[data-md-color-scheme="slate"] .canvas-container {
+    background: #1e1e1e;
+    border-color: #444;
+}
+
+/* Simulation space dark mode support */
+[data-md-color-scheme="slate"] #simulation-space {
+    background: #1e1e1e !important;
+    border-color: #444 !important;
+}
+
+/* Info boxes */
+div[style*="background: #f5f5f5"] {
+    transition: background 0.2s;
+}
+
+[data-md-color-scheme="slate"] div[style*="background: #f5f5f5"] {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: #444 !important;
+}
