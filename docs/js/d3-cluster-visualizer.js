@@ -62,35 +62,35 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("stroke", "#ccc")
         .attr("stroke-width", "2px")
         .attr("d", d3.linkHorizontal()
-        .x(d => d.y)
-        .y(d => d.x));
+        .x(node => node.y)
+        .y(node => node.x));
     // 6. Draw Nodes (Museum Points)
     const node = svg.selectAll(".node")
         .data(root.descendants())
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .attr("transform", nodeData => `translate(${nodeData.y},${nodeData.x})`)
         .style("cursor", "pointer")
-        .on("click", (event, d) => {
+        .on("click", (event, nodeData) => {
         // Interactive click hook to drill down into logs or configuration details
-        const status = d.data.status || 'Active Master';
+        const status = nodeData.data.status || 'Active Master';
         tooltip
             .style("visibility", "visible")
             .style("top", (event.pageY - 10) + "px")
             .style("left", (event.pageX + 10) + "px")
-            .html(`<strong>${d.data.name}</strong><br/>Status: ${status}`);
+            .html(`<strong>${nodeData.data.name}</strong><br/>Status: ${status}`);
         // Auto-hide after 3 seconds
         setTimeout(() => tooltip.style("visibility", "hidden"), 3000);
     })
-        .on("mouseenter", (event, d) => {
+        .on("mouseenter", (event, nodeData) => {
         // Show tooltip on hover
-        const status = d.data.status || 'Active Master';
+        const status = nodeData.data.status || 'Active Master';
         tooltip
             .style("visibility", "visible")
             .style("top", (event.pageY - 10) + "px")
             .style("left", (event.pageX + 10) + "px")
-            .html(`<strong>${d.data.name}</strong><br/>Status: ${status}`);
+            .html(`<strong>${nodeData.data.name}</strong><br/>Status: ${status}`);
     })
         .on("mousemove", (event) => {
         // Follow mouse
@@ -105,15 +105,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Outer Circle Indicator
     node.append("circle")
         .attr("r", 8)
-        .attr("fill", d => statusColors[d.data.status || ""] || "#0288d1")
+        .attr("fill", nodeData => statusColors[nodeData.data.status || ""] || "#0288d1")
         .attr("stroke", "#fff")
         .attr("stroke-width", "2px");
     // 7. Dynamic Text Typography Layout
     node.append("text")
         .attr("dy", ".35em")
-        .attr("x", d => d.children ? -15 : 15)
-        .attr("text-anchor", d => d.children ? "end" : "start")
-        .text(d => d.data.name)
+        .attr("x", nodeData => nodeData.children ? -15 : 15)
+        .attr("text-anchor", nodeData => nodeData.children ? "end" : "start")
+        .text(nodeData => nodeData.data.name)
         .style("font-family", "var(--md-text-font, sans-serif)")
         .style("font-size", "12px")
         .style("fill", "var(--md-typeset-color, #333)");

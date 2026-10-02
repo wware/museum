@@ -3,11 +3,11 @@ import type * as d3Types from "d3";
 
 // === TYPE DEFINITIONS ===
 interface SimulationState {
-    x: number;  // Displacement from equilibrium point (equilibriumX)
-    v: number;  // Velocity (dx/dt)
-    m: number;  // Mass
-    k: number;  // Stiffness constant
-    f: number;  // Friction/Damping factor
+    position: number;  // Displacement from equilibrium point
+    velocity: number;  // Velocity (dx/dt)
+    mass: number;      // Mass
+    stiffness: number; // Spring stiffness constant
+    damping: number;   // Friction/Damping factor
 }
 
 type Point = [number, number];
@@ -28,11 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Instantiate State Constants
     const state: SimulationState = {
-        x: 120,    // Displacement from equilibrium point (equilibriumX)
-        v: 0,      // Velocity (dx/dt)
-        m: 2.0,    // Mass
-        k: 15.0,   // Stiffness constant
-        f: 0.4     // Friction/Damping factor
+        position: 120,  // Displacement from equilibrium point
+        velocity: 0,    // Velocity (dx/dt)
+        mass: 2.0,      // Mass
+        stiffness: 15.0,// Spring stiffness constant
+        damping: 0.4    // Friction/Damping factor
     };
 
     // 3. Mount SVG Viewport Context
@@ -113,26 +113,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 5. Velocity Verlet Physics Loop Engine
     let isDragging = false;
-    const dt = 0.016; // Fixed timestep representing ~60fps frame interval
+    const timeStep = 0.016; // Fixed timestep representing ~60fps frame interval
 
     const physicsTimer = d3.timer(() => {
         if (!isDragging) {
             // Step 1: Calculate current acceleration
-            const acc_current = (-state.k * state.x - state.f * state.v) / state.m;
+            const currentAcceleration = (-state.stiffness * state.position - state.damping * state.velocity) / state.mass;
 
             // Step 2: Advance position a full step using half-step acceleration components
-            state.x += state.v * dt + 0.5 * acc_current * dt * dt;
+            state.position += state.velocity * timeStep + 0.5 * currentAcceleration * timeStep * timeStep;
 
             // Step 3: Calculate next acceleration at the new position (using a predicted half-step velocity for friction)
-            const v_predict = state.v + 0.5 * acc_current * dt;
-            const acc_next = (-state.k * state.x - state.f * v_predict) / state.m;
+            const predictedVelocity = state.velocity + 0.5 * currentAcceleration * timeStep;
+            const nextAcceleration = (-state.stiffness * state.position - state.damping * predictedVelocity) / state.mass;
 
             // Step 4: Advance velocity a full step using the average of current and next acceleration
-            state.v += 0.5 * (acc_current + acc_next) * dt;
+            state.velocity += 0.5 * (currentAcceleration + nextAcceleration) * timeStep;
         }
 
         // Resolve Absolute Coordinates
-        const massLeftX = equilibriumX + state.x - (massWidth / 2);
+        const massLeftX = equilibriumX + state.position - (massWidth / 2);
 
         // Update D3 Graphic Transforms
         block.attr("x", massLeftX)
@@ -152,12 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const dragHandler = d3.drag<SVGRectElement, unknown>()
         .on("start", () => {
             isDragging = true;
-            state.v = 0; // Clear residual velocities on grab
+            state.velocity = 0; // Clear residual velocities on grab
         })
         .on("drag", (event: d3Types.D3DragEvent<SVGRectElement, unknown, unknown>) => {
             const pointerX = event.x;
             const targetX = Math.max(wallX + 30, Math.min(width - massWidth, pointerX));
-            state.x = targetX - equilibriumX + (massWidth / 2);
+            state.position = targetX - equilibriumX + (massWidth / 2);
         })
         .on("end", () => {
             isDragging = false;
@@ -167,23 +167,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 7. Dynamic Knob Event Routing Controls
     d3.select<HTMLInputElement, unknown>("#massSlider").on("input", function () {
-        state.m = +this.value;
-        d3.select("#massVal").text(state.m.toFixed(1));
+        state.mass = +this.value;
+        d3.select("#massVal").text(state.mass.toFixed(1));
     });
 
     d3.select<HTMLInputElement, unknown>("#stiffSlider").on("input", function () {
-        state.k = +this.value;
-        d3.select("#stiffVal").text(state.k.toFixed(1));
+        state.stiffness = +this.value;
+        d3.select("#stiffVal").text(state.stiffness.toFixed(1));
     });
 
     d3.select<HTMLInputElement, unknown>("#frictionSlider").on("input", function () {
-        state.f = +this.value;
-        d3.select("#frictionVal").text(state.f.toFixed(2));
+        state.damping = +this.value;
+        d3.select("#frictionVal").text(state.damping.toFixed(2));
     });
 
     d3.select("#resetBtn").on("click", () => {
-        state.x = 150; // Give the block a distinct right displacement nudge
-        state.v = 0;   // Force stop residual kinetics
+        state.position = 150; // Give the block a distinct right displacement nudge
+        state.velocity = 0;   // Force stop residual kinetics
     });
 
 }); // End of DOMContentLoaded
