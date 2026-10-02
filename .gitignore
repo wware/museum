@@ -19,8 +19,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # Compiled JavaScript (generated from TypeScript)
-docs/js/*.js
-docs/js/*.js.map
+# Note: These ARE committed for Docker builds (no Node.js in container)
+# docs/js/*.js
+# docs/js/*.js.map
 
 # IDE
 .vscode/
