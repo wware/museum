@@ -1,5 +1,4 @@
 // Mass-Spring-Damper Simulation
-import type * as d3Types from "d3";
 
 // === TYPE DEFINITIONS ===
 interface SimulationState {
@@ -14,8 +13,15 @@ type Point = [number, number];
 
 // Only initialize if the simulation container is present on this page
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("[MASS-SPRING] DOMContentLoaded fired");
     const container = document.getElementById("simulation-space");
-    if (!container) return; // Exit if not on the simulation page
+    console.log("[MASS-SPRING] Container:", container);
+    if (!container) {
+        console.error("[MASS-SPRING] simulation-space not found!");
+        return; // Exit if not on the simulation page
+    }
+    console.log("[MASS-SPRING] Starting initialization...");
+    console.log("[MASS-SPRING] d3 available:", typeof d3);
 
     // 1. Setup Environment Space Configuration
     const width = container.clientWidth || 700;
@@ -36,11 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // 3. Mount SVG Viewport Context
-    const svg = d3.select(container)
-        .append("svg")
-        .attr("width", "100%")
-        .attr("height", height)
-        .attr("viewBox", `0 0 ${width} ${height}`);
+    console.log("[MASS-SPRING] Creating SVG with width:", width, "height:", height);
+    try {
+        const svg = d3.select(container)
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", height)
+            .attr("viewBox", `0 0 ${width} ${height}`);
+        console.log("[MASS-SPRING] SVG created successfully");
 
     // Draw Floor Line
     svg.append("line")
@@ -149,12 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 6. Hook Interactive Drag and Drop Handlers
-    const dragHandler = d3.drag<SVGRectElement, unknown>()
+    const dragHandler = d3.drag()
         .on("start", () => {
             isDragging = true;
             state.velocity = 0; // Clear residual velocities on grab
         })
-        .on("drag", (event: d3Types.D3DragEvent<SVGRectElement, unknown, unknown>) => {
+        .on("drag", (event: any) => {
             const pointerX = event.x;
             const targetX = Math.max(wallX + 30, Math.min(width - massWidth, pointerX));
             state.position = targetX - equilibriumX + (massWidth / 2);
@@ -165,18 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     block.call(dragHandler);
 
+    console.log("[MASS-SPRING] Simulation fully initialized!");
+
     // 7. Dynamic Knob Event Routing Controls
-    d3.select<HTMLInputElement, unknown>("#massSlider").on("input", function () {
+    d3.select("#massSlider").on("input", function (this: HTMLInputElement) {
         state.mass = +this.value;
         d3.select("#massVal").text(state.mass.toFixed(1));
     });
 
-    d3.select<HTMLInputElement, unknown>("#stiffSlider").on("input", function () {
+    d3.select("#stiffSlider").on("input", function (this: HTMLInputElement) {
         state.stiffness = +this.value;
         d3.select("#stiffVal").text(state.stiffness.toFixed(1));
     });
 
-    d3.select<HTMLInputElement, unknown>("#frictionSlider").on("input", function () {
+    d3.select("#frictionSlider").on("input", function (this: HTMLInputElement) {
         state.damping = +this.value;
         d3.select("#frictionVal").text(state.damping.toFixed(2));
     });
@@ -186,4 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         state.velocity = 0;   // Force stop residual kinetics
     });
 
+    } catch (error) {
+        console.error("[MASS-SPRING] Error during initialization:", error);
+    }
 }); // End of DOMContentLoaded

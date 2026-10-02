@@ -1,5 +1,4 @@
 // D3 GitOps/Kubernetes Cluster Visualizer
-import type * as d3Types from "d3";
 
 // === TYPE DEFINITIONS ===
 interface ClusterNode {
@@ -67,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .style("z-index", "9999");
 
     // 4. Create Tree Layout
-    const treeLayout = d3.tree<ClusterNode>()
+    const treeLayout = d3.tree()
         .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
     const root = d3.hierarchy(clusterData);
     treeLayout(root);
@@ -88,9 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("fill", "none")
         .attr("stroke", "#ccc")
         .attr("stroke-width", "2px")
-        .attr("d", d3.linkHorizontal<d3Types.HierarchyLink<ClusterNode>, d3Types.HierarchyPointNode<ClusterNode>>()
-            .x(node => node.y)
-            .y(node => node.x)
+        .attr("d", d3.linkHorizontal()
+            .x((node: any) => node.y)
+            .y((node: any) => node.x)
         );
 
     // 6. Draw Nodes (Museum Points)
@@ -99,9 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", nodeData => `translate(${nodeData.y},${nodeData.x})`)
+        .attr("transform", (nodeData: any) => `translate(${nodeData.y},${nodeData.x})`)
         .style("cursor", "pointer")
-        .on("click", (event: MouseEvent, nodeData) => {
+        .on("click", (event: MouseEvent, nodeData: any) => {
             // Interactive click hook to drill down into logs or configuration details
             const status = nodeData.data.status || 'Active Master';
             tooltip
@@ -113,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Auto-hide after 3 seconds
             setTimeout(() => tooltip.style("visibility", "hidden"), 3000);
         })
-        .on("mouseenter", (event: MouseEvent, nodeData) => {
+        .on("mouseenter", (event: MouseEvent, nodeData: any) => {
             // Show tooltip on hover
             const status = nodeData.data.status || 'Active Master';
             tooltip
@@ -136,16 +135,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Outer Circle Indicator
     node.append("circle")
         .attr("r", 8)
-        .attr("fill", nodeData => statusColors[nodeData.data.status || ""] || "#0288d1")
+        .attr("fill", (nodeData: any) => statusColors[nodeData.data.status || ""] || "#0288d1")
         .attr("stroke", "#fff")
         .attr("stroke-width", "2px");
 
     // 7. Dynamic Text Typography Layout
     node.append("text")
         .attr("dy", ".35em")
-        .attr("x", nodeData => nodeData.children ? -15 : 15)
-        .attr("text-anchor", nodeData => nodeData.children ? "end" : "start")
-        .text(nodeData => nodeData.data.name)
+        .attr("x", (nodeData: any) => nodeData.children ? -15 : 15)
+        .attr("text-anchor", (nodeData: any) => nodeData.children ? "end" : "start")
+        .text((nodeData: any) => nodeData.data.name)
         .style("font-family", "var(--md-text-font, sans-serif)")
         .style("font-size", "12px")
         .style("fill", "var(--md-typeset-color, #333)");

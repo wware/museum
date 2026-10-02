@@ -1,3 +1,5 @@
+"use strict";
+// D3 GitOps/Kubernetes Cluster Visualizer
 document.addEventListener("DOMContentLoaded", () => {
     // Only initialize if the placeholder grid element is on the current page
     const targetDiv = document.getElementById("d3-cluster-museum-piece");
@@ -62,15 +64,15 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("stroke", "#ccc")
         .attr("stroke-width", "2px")
         .attr("d", d3.linkHorizontal()
-        .x(node => node.y)
-        .y(node => node.x));
+        .x((node) => node.y)
+        .y((node) => node.x));
     // 6. Draw Nodes (Museum Points)
     const node = svg.selectAll(".node")
         .data(root.descendants())
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", nodeData => `translate(${nodeData.y},${nodeData.x})`)
+        .attr("transform", (nodeData) => `translate(${nodeData.y},${nodeData.x})`)
         .style("cursor", "pointer")
         .on("click", (event, nodeData) => {
         // Interactive click hook to drill down into logs or configuration details
@@ -105,18 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // Outer Circle Indicator
     node.append("circle")
         .attr("r", 8)
-        .attr("fill", nodeData => statusColors[nodeData.data.status || ""] || "#0288d1")
+        .attr("fill", (nodeData) => statusColors[nodeData.data.status || ""] || "#0288d1")
         .attr("stroke", "#fff")
         .attr("stroke-width", "2px");
     // 7. Dynamic Text Typography Layout
     node.append("text")
         .attr("dy", ".35em")
-        .attr("x", nodeData => nodeData.children ? -15 : 15)
-        .attr("text-anchor", nodeData => nodeData.children ? "end" : "start")
-        .text(nodeData => nodeData.data.name)
+        .attr("x", (nodeData) => nodeData.children ? -15 : 15)
+        .attr("text-anchor", (nodeData) => nodeData.children ? "end" : "start")
+        .text((nodeData) => nodeData.data.name)
         .style("font-family", "var(--md-text-font, sans-serif)")
         .style("font-size", "12px")
         .style("fill", "var(--md-typeset-color, #333)");
 });
-export {};
 //# sourceMappingURL=d3-cluster-visualizer.js.map
