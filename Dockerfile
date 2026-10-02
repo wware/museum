@@ -4,7 +4,7 @@ FROM python:3.11-slim AS builder
 WORKDIR /app
 
 # Install MkDocs and Material theme
-RUN pip install --no-cache-dir mkdocs mkdocs-material
+RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org mkdocs mkdocs-material
 
 # Copy documentation source (including pre-compiled JavaScript)
 COPY mkdocs.yml .
