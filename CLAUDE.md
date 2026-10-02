@@ -12,11 +12,18 @@ This isn't documentation, it's a **museum**. Each exhibit should:
 
 ## Architecture
 
-### Current: Pure Static
-- All exhibits run in the browser (JavaScript + D3.js)
+### Current: TypeScript + Static Site
+- Written in **TypeScript** (`src/`) compiled to JavaScript (`docs/js/`)
+- All exhibits run in the browser (TypeScript + D3.js)
 - No backend, no state, no authentication
 - Fully portable: Docker container or static hosting
 - Bookmarking and notes via localStorage
+
+**TypeScript Benefits:**
+- Type safety catches errors at compile time
+- Better IDE autocomplete and refactoring
+- Proper D3.js type definitions
+- Modern ES6+ features with type checking
 
 ### Future: Hybrid (Proposal)
 See `HYBRID_ARCHITECTURE.md` for plans to add optional API-backed exhibits for real infrastructure demonstrations.
@@ -45,20 +52,29 @@ Background and theory...
 - What to observe
 ```
 
-### 2. Create the JavaScript (if needed)
+### 2. Create the TypeScript Code (if needed)
 
-**JavaScript file** in `docs/js/your-exhibit.js`:
+**TypeScript file** in `src/your-exhibit.ts`:
 
-```javascript
+```typescript
+// D3 is loaded globally via CDN - type definitions available
+import type * as d3Types from "d3";
+
+// === TYPE DEFINITIONS ===
+interface YourDataStructure {
+    name: string;
+    value: number;
+}
+
 // CRITICAL: Wrap everything in DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
     // CRITICAL: Check if container exists (JS loads on every page)
     const container = document.getElementById("your-exhibit-container");
     if (!container) return; // Exit if not on this exhibit's page
 
-    // Now initialize your visualization
-    const width = container.clientWidth || 700;
-    const height = 400;
+    // Now initialize your visualization with type safety
+    const width: number = container.clientWidth || 700;
+    const height: number = 400;
     
     const svg = d3.select(container)
         .append("svg")
@@ -66,9 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
         .attr("height", height)
         .attr("viewBox", `0 0 ${width} ${height}`);
     
-    // Your visualization code here...
+    // Your visualization code here with full type checking...
     
 }); // Don't forget to close the DOMContentLoaded wrapper!
+```
+
+**Compile TypeScript:**
+```bash
+npm run build          # One-time compilation
+# OR
+npm run watch          # Auto-compile on file changes
 ```
 
 ### 3. Register in Configuration
@@ -82,20 +105,29 @@ nav:
   - Demonstrations:
       - Your Exhibit: your-exhibit.md  # Add here
 
-# Add JavaScript to extra_javascript (if needed)
+# Add compiled JavaScript to extra_javascript (if needed)
 extra_javascript:
   - https://d3js.org/d3.v7.min.js
-  - js/your-exhibit.js  # Add here
+  - js/your-exhibit.js  # Compiled from src/your-exhibit.ts
 ```
 
 ### 4. Test
 
 ```bash
-mkdocs serve
+npm run build      # Compile TypeScript first
+mkdocs serve       # Start development server
 # Visit http://localhost:8000/your-exhibit/
 ```
 
+**Or use Makefile shortcuts:**
+```bash
+make ts-build      # Compile TypeScript
+make run           # Compile + serve (auto-compiles)
+make ts-watch      # Watch mode - auto-compile on changes
+```
+
 Check:
+- ✅ TypeScript compiles without errors
 - ✅ Visualization appears
 - ✅ Interaction works (drag, click, etc.)
 - ✅ No console errors (F12 → Console)
@@ -161,9 +193,120 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 ```
 
-## JavaScript Patterns
+## TypeScript Development Workflow
 
-### Pattern: D3 Timer Loop (Physics/Animation)
+### Project Structure
+```
+museum/
+├── src/                         # TypeScript source files
+│   ├── museum-features.ts       # Global bookmarking & notes
+│   ├── d3-cluster-visualizer.ts # Cluster visualization
+│   ├── mass-spring.ts           # Physics simulation
+│   ├── your-exhibit.ts          # Your new exhibit
+│   └── globals.d.ts             # Global type declarations (d3)
+├── docs/js/                     # Compiled JavaScript (git-ignored)
+│   ├── museum-features.js
+│   ├── d3-cluster-visualizer.js
+│   └── mass-spring.js
+├── tsconfig.json                # TypeScript configuration
+└── package.json                 # Node.js dependencies
+```
+
+### Development Commands
+```bash
+# Install dependencies (first time)
+npm install
+
+# Compile TypeScript
+npm run build          # One-time compilation
+npm run watch          # Watch mode - auto-compile on changes
+make ts-build          # Same as npm run build
+make ts-watch          # Same as npm run watch
+make ts-check          # Type-check without compiling
+
+# Run the site
+make run               # Auto-compiles + starts server
+make dev               # Same as above
+mkdocs serve           # Direct (requires manual compile first)
+
+# Full workflow
+npm install            # Install dependencies
+npm run build          # Compile TypeScript
+mkdocs serve           # Start server
+```
+
+### TypeScript Tips
+
+**1. D3 is a Global**
+D3 is loaded via CDN in the browser, not imported as a module:
+```typescript
+// ✅ CORRECT - Use d3 as global with type imports
+import type * as d3Types from "d3";
+
+// Then use d3 directly (loaded globally)
+const svg = d3.select("#container");
+
+// For type annotations, use d3Types
+const dragHandler = d3.drag<SVGRectElement, unknown>();
+```
+
+**2. Type Your Data Structures**
+```typescript
+interface SimulationState {
+    x: number;
+    v: number;
+    m: number;
+}
+
+const state: SimulationState = {
+    x: 0,
+    v: 0,
+    m: 2.0
+};
+```
+
+**3. Event Handlers with Type Safety**
+```typescript
+// Mouse events
+node.on("click", (event: MouseEvent, d) => {
+    console.log(event.pageX, event.pageY);
+});
+
+// D3 drag events
+import type * as d3Types from "d3";
+
+const dragHandler = d3.drag<SVGRectElement, unknown>()
+    .on("drag", (event: d3Types.D3DragEvent<SVGRectElement, unknown, unknown>) => {
+        const x = event.x;
+        const y = event.y;
+    });
+```
+
+**4. HTML Element Type Assertions**
+```typescript
+// Input elements need type assertions
+d3.select<HTMLInputElement, unknown>("#mySlider")
+    .on("input", function() {
+        const value = +this.value;  // 'this' is now HTMLInputElement
+    });
+```
+
+### Troubleshooting TypeScript
+
+**Error: "Cannot find namespace 'd3'"**
+- Solution: Use `import type * as d3Types from "d3"` for type annotations
+- The global `d3` object is for runtime, `d3Types` is for types
+
+**Error: "Property 'value' does not exist on type 'BaseType'"**
+- Solution: Add type parameter to `d3.select<HTMLInputElement, unknown>()`
+
+**Error: "Module not found"**
+- Solution: Run `npm install` to install dependencies
+
+**Compilation fails but no clear error**
+- Run `make ts-check` or `npx tsc --noEmit` for detailed type errors
+
+## JavaScript Patterns (TypeScript)
 ```javascript
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("simulation-space");
