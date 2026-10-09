@@ -1,6 +1,5 @@
-"use strict";
 // MathJax 3 configuration; must load before the MathJax script in mkdocs.yml
-window.MathJax = {
+(window as any).MathJax = {
     tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$'], ['\\[', '\\]']],
@@ -11,4 +10,3 @@ window.MathJax = {
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
     }
 };
-//# sourceMappingURL=mathjax-config.js.map
