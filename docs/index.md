@@ -21,6 +21,9 @@ An interactive physics simulation using Velocity Verlet integration. Drag the ma
 ### [GitOps Cluster Visualizer](gitops-visualizer.md)
 A D3-based visualization showing the state of distributed cluster nodes with interactive drill-down capabilities.
 
+### [Orbits and the Space Elevator](orbital-mechanics.md)
+Launch ships into orbit, find escape velocity by experiment, and release a climber from a space elevator to see when it escapes with no rocket at all.
+
 ## Using This Museum
 
 - **Navigate**: Use the menu above to browse exhibits

@@ -198,6 +198,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 **Solution**: Keep `navigation.instant` out of `mkdocs.yml`. Exhibits initialize on `DOMContentLoaded` and assume a full page load. Re-enabling instant navigation means moving every exhibit to Material's `document$` event, with timer teardown on navigation.
 
+### ❌ Problem: Exhibit renders inside a heading
+**Cause**: MkDocs gives every heading an `id` from its text ("## Orbit sandbox" becomes `id="orbit-sandbox"`). If your container `div` uses the same id, `getElementById` returns the heading.
+
+**Solution**: Give containers ids that no heading would produce, such as `orbit-sim`. The smoke tests fail on duplicate ids.
+
 ### ❌ Problem: Hand-written JS in `docs/js/` disappears
 **Cause**: `make clean` and `npm run clean` delete `docs/js/*.js`. Anything in that directory must be compiled from `src/*.ts` (even small config like `mathjax-config.ts`), never written by hand.
 
