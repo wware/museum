@@ -22,6 +22,7 @@ Or see [USAGE.md](USAGE.md) and [BUILD.md](BUILD.md) for detailed instructions.
 
 - **Interactive Physics Simulation** - Mass-spring-damper system with Velocity Verlet integration
 - **GitOps Cluster Visualizer** - D3.js tree layout showing infrastructure health
+- **Orbits and the Space Elevator** - 2D orbit sandbox, escape velocity, and a space elevator
 - **Client-side Bookmarking** - Save your favorite exhibits (localStorage)
 - **Personal Note-taking** - Annotate pages with your own insights
 - **Full-text Search** - Find content instantly

@@ -93,3 +93,57 @@ div[style*="background: #f5f5f5"] {
     background: rgba(255, 255, 255, 0.05) !important;
     border-color: #444 !important;
 }
+
+/* Orbital mechanics exhibit: preset buttons, legend, and readouts */
+.orbit-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.orbit-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+
+.orbit-readout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 4px 16px;
+    margin-top: 10px;
+    padding: 12px 15px;
+    font-size: 0.85em;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.orbit-readout .label {
+    opacity: 0.7;
+}
+
+.orbit-buttons button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+[data-md-color-scheme="slate"] .orbit-buttons button {
+    background: rgba(255, 255, 255, 0.1);
+    color: #eee;
+    border-color: #555;
+}
+
+[data-md-color-scheme="slate"] .orbit-buttons button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+[data-md-color-scheme="slate"] .orbit-readout,
+[data-md-color-scheme="slate"] #orbit-sim .control-panel,
+[data-md-color-scheme="slate"] #elevator-sim .control-panel {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #444;
+}
