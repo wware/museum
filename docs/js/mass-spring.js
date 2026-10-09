@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // 5. Velocity Verlet Physics Loop Engine
         let isDragging = false;
         const timeStep = 0.016; // Fixed timestep representing ~60fps frame interval
-        const physicsTimer = d3.timer(() => {
+        const step = () => {
             if (!isDragging) {
                 // Step 1: Calculate current acceleration
                 const currentAcceleration = (-state.stiffness * state.position - state.damping * state.velocity) / state.mass;
@@ -117,11 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
             block.attr("x", massLeftX)
                 .attr("y", floorY - massHeight);
             springPath.attr("d", updateSpringGeometry(wallX, massLeftX));
-        });
-        // Stop timer when page becomes hidden to prevent memory leaks
+        };
+        const physicsTimer = d3.timer(step);
+        // Pause while the tab is hidden, resume when it is visible again
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && physicsTimer) {
+            if (document.hidden) {
                 physicsTimer.stop();
+            }
+            else {
+                physicsTimer.restart(step);
             }
         });
         // 6. Hook Interactive Drag and Drop Handlers

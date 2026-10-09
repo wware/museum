@@ -193,6 +193,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 ```
 
+### ❌ Problem: Exhibit or math is blank until you refresh
+**Cause**: Material's `navigation.instant` swaps page content without a real page load, so `DOMContentLoaded` never fires and MathJax never re-typesets.
+
+**Solution**: Keep `navigation.instant` out of `mkdocs.yml`. Exhibits initialize on `DOMContentLoaded` and assume a full page load. Re-enabling instant navigation means moving every exhibit to Material's `document$` event, with timer teardown on navigation.
+
+### ❌ Problem: Hand-written JS in `docs/js/` disappears
+**Cause**: `make clean` and `npm run clean` delete `docs/js/*.js`. Anything in that directory must be compiled from `src/*.ts` (even small config like `mathjax-config.ts`), never written by hand.
+
 ## TypeScript Development Workflow
 
 ### Project Structure
