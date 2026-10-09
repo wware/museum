@@ -1,0 +1,5 @@
+# Config for the browser smoke tests (build with: mkdocs build -f mkdocs.test.yml).
+# site_url makes Material's instant navigation active (it reads sitemap.xml),
+# so the tests would catch navigation.instant being re-enabled in mkdocs.yml.
+INHERIT: mkdocs.yml
+site_url: http://127.0.0.1:8123/

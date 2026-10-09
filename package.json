@@ -5,9 +5,11 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
+    "test:e2e": "playwright test",
     "clean": "rm -rf docs/js/*.js docs/js/*.js.map"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/d3": "^7.4.3",
     "typescript": "^5.3.3"
   },

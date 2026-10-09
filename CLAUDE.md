@@ -419,6 +419,27 @@ museum/
 └── HYBRID_ARCHITECTURE.md # Future API proposal
 ```
 
+## Continuous Integration
+
+GitHub Actions config lives in `.github/`:
+
+- `workflows/ci.yml` runs on pushes to `main` and on PRs. The **build** job compiles TypeScript, fails if the committed `docs/js/` differs from the compiled output, runs `mkdocs build --strict`, and builds the Docker image. The **smoke** job runs the Playwright tests in `tests/`.
+- `workflows/pages.yml` publishes the site to GitHub Pages on pushes to `main`. One-time setup: Settings > Pages > Source: **GitHub Actions**.
+- `dependabot.yml` opens weekly update PRs for npm, pip, Actions and the Docker base image. A TypeScript bump that changes compiled output will fail the stale-JS check until you run `npm run build` and commit.
+
+### Running the smoke tests locally
+
+```bash
+npm install
+npx playwright install chromium     # first time only
+mkdocs build -f mkdocs.test.yml     # NOT plain mkdocs.yml, see below
+npm run test:e2e
+```
+
+- `mkdocs.test.yml` adds a `site_url`. Material's instant navigation only activates when `site_url` is set (it reads `sitemap.xml`), and `mkdocs serve` sets one automatically, so a plain static build can't reproduce instant-navigation bugs. The test build can.
+- Behind a TLS-intercepting proxy, Playwright's Chromium rejects the d3 and MathJax CDN certificates and every exhibit fails to draw. Run with `PW_IGNORE_HTTPS_ERRORS=1 npm run test:e2e`. Never set this in CI.
+- Add a test to `tests/smoke.spec.ts` for each new exhibit.
+
 ## Building & Testing
 
 ### Development Server
