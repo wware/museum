@@ -204,7 +204,7 @@ museum/
 │   ├── mass-spring.ts           # Physics simulation
 │   ├── your-exhibit.ts          # Your new exhibit
 │   └── globals.d.ts             # Global type declarations (d3)
-├── docs/js/                     # Compiled JavaScript (git-ignored)
+├── docs/js/                     # Compiled JavaScript (committed; .js.map files are git-ignored)
 │   ├── museum-features.js
 │   ├── d3-cluster-visualizer.js
 │   └── mass-spring.js
@@ -234,6 +234,22 @@ npm install            # Install dependencies
 npm run build          # Compile TypeScript
 mkdocs serve           # Start server
 ```
+
+### Git Pre-commit Hook (one-time setup per clone)
+
+Compiled JS in `docs/js/` is committed because the Docker image has no Node.js. A pre-commit hook keeps it in sync: when any `src/*.ts` file is staged, it runs `npm run build` and stages `docs/js/*.js`. If compilation fails, the commit is blocked.
+
+Git does not track `.git/hooks/`, so the hook lives in `.githooks/pre-commit`. After cloning, run once:
+
+```bash
+npm install
+git config core.hooksPath .githooks
+```
+
+Notes:
+- Requires `node_modules/` (run `npm install` first) or the hook blocks the commit.
+- Bypass in an emergency with `git commit --no-verify`, but then run `npm run build` and commit the JS yourself.
+- Commit `.ts` changes and the matching compiled `.js` together; never hand-edit files in `docs/js/`.
 
 ### TypeScript Tips
 
