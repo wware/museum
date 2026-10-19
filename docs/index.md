@@ -24,6 +24,9 @@ A D3-based visualization showing the state of distributed cluster nodes with int
 ### [Orbits and the Space Elevator](orbital-mechanics.md)
 Launch ships into orbit, find escape velocity by experiment, and release a climber from a space elevator to see when it escapes with no rocket at all.
 
+### [The Checkout Line](lab/checkout-line.md)
+Customers arrive at random and wait for a server. Push the arrival rate toward capacity and watch a line that was merely long start growing without end. This is the first exhibit in the Lab wing, run by a separate exhibit service instead of the page itself.
+
 ## Using This Museum
 
 - **Navigate**: Use the menu above to browse exhibits
