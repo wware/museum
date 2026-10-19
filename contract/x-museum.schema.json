@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Museum of Arcane Curiosities: x-museum OpenAPI extensions",
+  "description": "Draft, unversioned. The top-level schema validates the root-level `x-museum` object of a service's OpenAPI 3.1 document. Everything else the museum checks (per-operation `x-museum-control`, conventional responses, view data) is under `$defs`.",
+  "$ref": "#/$defs/root",
+  "$defs": {
+    "name": {
+      "description": "Exhibit, action, view and parameter names. An action's name is the last path segment of `POST /exhibits/{exhibit}/actions/{name}`.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "root": {
+      "description": "The root-level `x-museum` object.",
+      "type": "object",
+      "required": ["exhibits"],
+      "additionalProperties": false,
+      "properties": {
+        "exhibits": {
+          "description": "Exhibits this service hosts, keyed by exhibit id.",
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "$ref": "#/$defs/name" },
+          "additionalProperties": { "$ref": "#/$defs/exhibit" }
+        }
+      }
+    },
+    "exhibit": {
+      "type": "object",
+      "required": ["title", "views"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "poll_interval_ms": {
+          "description": "How often the museum fetches state. Defaults to 1000.",
+          "type": "integer",
+          "minimum": 250
+        },
+        "views": {
+          "description": "Views in display order. Each view draws `state.views[view.name]`.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/view" }
+        }
+      }
+    },
+    "view": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/name" },
+        "type": {
+          "description": "v1 view types. Planned later: tree, code, embed.",
+          "enum": ["chart", "kv", "log"]
+        },
+        "label": { "type": "string" },
+        "x_label": { "type": "string" },
+        "y_label": { "type": "string" }
+      },
+      "if": { "properties": { "type": { "not": { "const": "chart" } } } },
+      "then": { "not": { "anyOf": [ { "required": ["x_label"] }, { "required": ["y_label"] } ] } }
+    },
+    "control": {
+      "description": "The `x-museum-control` object on an action operation. Parameter types and limits come from the operation's request-body schema, not from here.",
+      "type": "object",
+      "required": ["type", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["button", "slider", "select", "number", "text"] },
+        "label": { "type": "string", "minLength": 1 },
+        "order": {
+          "description": "Controls are shown in ascending order.",
+          "type": "integer"
+        },
+        "param": {
+          "description": "The request-body property this control sets. Required for every type except button.",
+          "$ref": "#/$defs/name"
+        },
+        "step": {
+          "description": "Increment for slider and number controls. Kept here rather than as `multipleOf` in the request schema, because standard JSON Schema validators reject decimal multiples such as 0.3 against 0.1.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "unit": { "type": "string" },
+        "multiline": {
+          "description": "Text controls only: a multi-line editor instead of a single line.",
+          "type": "boolean"
+        },
+        "confirm": {
+          "description": "If present, the museum asks this question before sending the action.",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "button" } } },
+          "then": { "not": { "required": ["param"] } },
+          "else": { "required": ["param"] }
+        },
+        {
+          "if": { "properties": { "type": { "enum": ["slider", "number"] } } },
+          "else": { "not": { "required": ["step"] } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "text" } } },
+          "else": { "not": { "required": ["multiline"] } }
+        }
+      ]
+    },
+    "health": {
+      "description": "Response of `GET /healthz`.",
+      "type": "object",
+      "required": ["status", "service"],
+      "properties": {
+        "status": { "enum": ["ok", "degraded"] },
+        "service": { "type": "string" },
+        "detail": { "type": ["string", "null"] }
+      }
+    },
+    "exhibitList": {
+      "description": "Response of `GET /exhibits`.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "$ref": "#/$defs/name" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "state": {
+      "description": "Response of `GET /exhibits/{id}/state` and of every action.",
+      "type": "object",
+      "required": ["views", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "views": {
+          "description": "Data for each view, keyed by view name. Each value must match the data shape for that view's type.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/name" }
+        },
+        "actions": {
+          "description": "Which actions are enabled right now, keyed by action name. An action missing from this map is treated as disabled.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/name" },
+          "additionalProperties": { "$ref": "#/$defs/actionState" }
+        },
+        "values": {
+          "description": "Current parameter values for controls, keyed by action name, then parameter name.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/name" },
+          "additionalProperties": { "type": "object" }
+        }
+      }
+    },
+    "actionState": {
+      "type": "object",
+      "required": ["enabled"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "reason": {
+          "description": "Why the action is disabled, shown to the visitor.",
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "viewData": {
+      "description": "Data shapes for each view type, used to check `state.views` entries.",
+      "chart": {
+        "type": "object",
+        "required": ["series"],
+        "additionalProperties": false,
+        "properties": {
+          "series": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "points"],
+              "additionalProperties": false,
+              "properties": {
+                "name": { "type": "string" },
+                "points": {
+                  "description": "[x, y] pairs in ascending x order.",
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "prefixItems": [ { "type": "number" }, { "type": "number" } ],
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "kv": {
+        "type": "object",
+        "required": ["items"],
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["label", "value"],
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string" },
+                "value": { "type": ["string", "number", "boolean"] },
+                "unit": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "log": {
+        "type": "object",
+        "required": ["entries"],
+        "additionalProperties": false,
+        "properties": {
+          "entries": {
+            "description": "Oldest first. The museum may show only the most recent entries.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["message"],
+              "additionalProperties": false,
+              "properties": {
+                "time": { "type": "string" },
+                "level": { "enum": ["info", "warn", "error"] },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

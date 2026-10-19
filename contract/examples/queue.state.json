@@ -1,0 +1,42 @@
+{
+  "views": {
+    "queue_length": {
+      "series": [
+        {
+          "name": "waiting",
+          "points": [[-50, 0], [-45, 1], [-40, 1], [-35, 3], [-30, 2], [-25, 4], [-20, 6], [-15, 5], [-10, 8], [-5, 9], [0, 11]]
+        }
+      ]
+    },
+    "stats": {
+      "items": [
+        { "label": "Waiting", "value": 11, "unit": "people" },
+        { "label": "Being served", "value": 2, "unit": "people" },
+        { "label": "Served so far", "value": 184, "unit": "people" },
+        { "label": "Average wait", "value": 7.4, "unit": "s" },
+        { "label": "Utilization (arrivals / capacity)", "value": "125%" }
+      ]
+    },
+    "events": {
+      "entries": [
+        { "time": "12:00:03", "level": "info", "message": "Arrival rate set to 2.5 per second" },
+        { "time": "12:00:19", "level": "info", "message": "Rush hour: 10 customers arrived" },
+        { "time": "12:00:41", "level": "warn", "message": "Arrivals exceed capacity: the line will keep growing" }
+      ]
+    }
+  },
+  "actions": {
+    "set_arrival_rate": { "enabled": true },
+    "set_service_rate": { "enabled": true },
+    "set_servers": { "enabled": true },
+    "add_burst": { "enabled": true },
+    "pause": { "enabled": true },
+    "resume": { "enabled": false, "reason": "The simulation is already running" },
+    "reset": { "enabled": true }
+  },
+  "values": {
+    "set_arrival_rate": { "rate": 2.5 },
+    "set_service_rate": { "rate": 1.0 },
+    "set_servers": { "servers": 2 }
+  }
+}

@@ -1,0 +1,533 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Queue toy service",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "summary": "Healthz",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exhibits": {
+      "get": {
+        "summary": "Exhibits",
+        "operationId": "exhibits_exhibits_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExhibitSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Exhibits Exhibits Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exhibits/queue/state": {
+      "get": {
+        "summary": "Queue State",
+        "operationId": "queue_state_exhibits_queue_state_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/exhibits/queue/actions/set_arrival_rate": {
+      "post": {
+        "summary": "Set Arrival Rate",
+        "operationId": "set_arrival_rate_exhibits_queue_actions_set_arrival_rate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetArrivalRate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "slider",
+          "label": "Arrival rate",
+          "order": 1,
+          "param": "rate",
+          "step": 0.1,
+          "unit": "per second"
+        }
+      }
+    },
+    "/exhibits/queue/actions/set_service_rate": {
+      "post": {
+        "summary": "Set Service Rate",
+        "operationId": "set_service_rate_exhibits_queue_actions_set_service_rate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetServiceRate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "slider",
+          "label": "Service rate (per server)",
+          "order": 2,
+          "param": "rate",
+          "step": 0.1,
+          "unit": "per second"
+        }
+      }
+    },
+    "/exhibits/queue/actions/set_servers": {
+      "post": {
+        "summary": "Set Servers",
+        "operationId": "set_servers_exhibits_queue_actions_set_servers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetServers"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "select",
+          "label": "Servers",
+          "order": 3,
+          "param": "servers"
+        }
+      }
+    },
+    "/exhibits/queue/actions/add_burst": {
+      "post": {
+        "summary": "Add Burst",
+        "operationId": "add_burst_exhibits_queue_actions_add_burst_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "button",
+          "label": "Rush hour: add 10 customers",
+          "order": 4
+        }
+      }
+    },
+    "/exhibits/queue/actions/pause": {
+      "post": {
+        "summary": "Pause",
+        "operationId": "pause_exhibits_queue_actions_pause_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "button",
+          "label": "Pause",
+          "order": 5
+        }
+      }
+    },
+    "/exhibits/queue/actions/resume": {
+      "post": {
+        "summary": "Resume",
+        "operationId": "resume_exhibits_queue_actions_resume_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "button",
+          "label": "Resume",
+          "order": 6
+        }
+      }
+    },
+    "/exhibits/queue/actions/reset": {
+      "post": {
+        "summary": "Reset",
+        "operationId": "reset_exhibits_queue_actions_reset_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueState"
+                }
+              }
+            }
+          }
+        },
+        "x-museum-control": {
+          "type": "button",
+          "label": "Reset",
+          "order": 7,
+          "confirm": "Clear the queue and all statistics?"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActionState": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "ActionState"
+      },
+      "ExhibitSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "ExhibitSummary"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "title": "Health"
+      },
+      "QueueState": {
+        "properties": {
+          "views": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Views",
+            "description": "Data for each view, keyed by view name"
+          },
+          "actions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ActionState"
+            },
+            "type": "object",
+            "title": "Actions",
+            "description": "Which actions are enabled right now"
+          },
+          "values": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Values",
+            "description": "Current parameter values, keyed by action name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "views",
+          "actions",
+          "values"
+        ],
+        "title": "QueueState"
+      },
+      "SetArrivalRate": {
+        "properties": {
+          "rate": {
+            "type": "number",
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Rate",
+            "description": "Customers arriving per second"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rate"
+        ],
+        "title": "SetArrivalRate"
+      },
+      "SetServers": {
+        "properties": {
+          "servers": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ],
+            "title": "Servers",
+            "description": "Number of servers working the queue"
+          }
+        },
+        "type": "object",
+        "required": [
+          "servers"
+        ],
+        "title": "SetServers"
+      },
+      "SetServiceRate": {
+        "properties": {
+          "rate": {
+            "type": "number",
+            "maximum": 5.0,
+            "minimum": 0.1,
+            "title": "Rate",
+            "description": "Customers one server finishes per second"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rate"
+        ],
+        "title": "SetServiceRate"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "x-museum": {
+    "exhibits": {
+      "queue": {
+        "title": "The checkout line",
+        "summary": "Customers arrive at random and wait for a server. Push the arrival rate toward the service capacity and watch the line explode.",
+        "poll_interval_ms": 1000,
+        "views": [
+          {
+            "name": "queue_length",
+            "type": "chart",
+            "label": "People waiting",
+            "x_label": "seconds ago",
+            "y_label": "people"
+          },
+          {
+            "name": "stats",
+            "type": "kv",
+            "label": "Right now"
+          },
+          {
+            "name": "events",
+            "type": "log",
+            "label": "What happened"
+          }
+        ]
+      }
+    }
+  }
+}

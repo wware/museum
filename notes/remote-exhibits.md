@@ -52,6 +52,32 @@ The museum fetches the manifest once to build the page, then keeps the page in s
 
 FastAPI serves `/docs` (Swagger UI with "Try it out", useful for driving an exhibit by hand before the museum side exists), `/redoc`, and the raw `/openapi.json`. Swagger UI hides `x-` fields unless the app sets `swagger_ui_parameters={"showExtensions": True}`.
 
+## Contract files (draft)
+
+- `contract/x-museum.schema.json`: JSON Schema (2020-12, same dialect as OpenAPI 3.1) for the root `x-museum` object, with `$defs` for `x-museum-control`, the `/healthz` and `/exhibits` responses, the state envelope, and the data shape of each view type. Strict about unknown keys, so typos fail.
+- `contract/examples/queue.openapi.json`: a realistic manifest for the toy exhibit, generated from a throwaway FastAPI app (FastAPI 0.149, Pydantic 2.14) rather than written by hand, so it shows exactly what FastAPI emits.
+- `contract/examples/queue.state.json`: a matching state response, at a moment where arrivals exceed capacity.
+
+### What drafting them settled
+
+- **The toy exhibit (tentative): "The checkout line"**, a queue with random arrivals and one to three servers. Sliders for arrival and service rate, a select for the number of servers, buttons for a rush-hour burst, pause, resume and reset. Views: a chart of people waiting, current stats, an event log. It exercises every v1 control type except text and number, disabled actions with reasons, and confirmation.
+- **The state envelope has fixed keys:** `views` (keyed by view name; each view draws `state.views[view.name]`), `actions` (`{enabled, reason}`; an action missing from the map is disabled), and `values` (keyed by action name, then parameter name).
+- **v1 vocabulary.** Controls: button, slider, select, number, text (`multiline` optional). Views: chart (`[x, y]` series), kv (label/value/unit items), log (entries with optional time and level). Tree, code and embed wait for the gitops exhibit.
+- **Layout for v1 is fixed:** controls in ascending `order`, above the views in manifest order. Anything fancier waits until an exhibit needs it.
+- **`confirm`** on a control makes the museum ask before sending (used for Reset).
+- **Slider steps live in `x-museum-control.step`, not in the request schema.** FastAPI turns `multiple_of=0.1` into `multipleOf: 0.1`, and while Pydantic accepts 0.3 against it, standard JSON Schema validators reject 0.3, 0.7, 2.3 and so on because of floating point. `multipleOf` is only safe for integers.
+- **FastAPI emits what the design needs:** `ge`/`le` as `minimum`/`maximum`, `Literal[...]` as an `enum`, request bodies as `$ref`s into `components.schemas`, and both kinds of extension pass through. Root-level `x-museum` requires overriding `app.openapi`; per-operation fields use `openapi_extra`.
+
+### Rules the schema can't express
+
+These span documents, so the museum (and any contract test for a service) must check them in code. All were exercised against the examples with a throwaway checker, including bad inputs that each rule caught.
+
+- Every `POST /exhibits/{exhibit}/actions/{name}` has an `x-museum-control`, and `{exhibit}` is declared under `x-museum.exhibits`.
+- A control's `param` exists in the operation's request body. A button's operation has no request-body properties.
+- A select's param has an `enum`. A slider's param has `minimum` and `maximum`.
+- Every declared view has data in `state.views`, and there's no data for undeclared views. Each view's data matches the shape for its type.
+- `state.actions` and `state.values` only name real actions, and `state.values` respects each parameter's published type and limits.
+
 ## Contract sketch (to be designed properly)
 
 - `GET /healthz`: status, contract version, service name.
@@ -70,11 +96,11 @@ FastAPI serves `/docs` (Swagger UI with "Try it out", useful for driving an exhi
 - **How the museum validates the manifest.** Probably a JSON Schema for the `x-museum` extensions, kept in this repo.
 - **CORS and Chrome's Private Network Access.** A page on one origin calling `http://localhost` needs CORS headers and, in Chrome, a private-network preflight answer. Serving the museum and the service behind one nginx (`/lab/` proxied to the service, via docker compose) avoids both.
 - **Testing.** Playwright stubs the service endpoints so CI covers every placard state and a working exhibit without running Python. A tiny fake FastAPI service is for local development.
-- **What the toy exhibit is.** Something small, such as a queue or cache you poke with buttons and watch on a chart.
+- **Should the contract checker be committed?** The cross-document rules above could become a script (or a pytest plugin) that services run in their own CI against their generated `openapi.json`.
 
 ## Next steps
 
-1. Pick the toy exhibit.
-2. Specify the `x-museum` extensions (a versioned JSON Schema in this repo) and the v1 control and view vocabulary, and write an example `openapi.json` for the toy exhibit by hand.
+1. ~~Pick the toy exhibit.~~ Tentatively "The checkout line" (see "Contract files").
+2. ~~Specify the `x-museum` extensions and the v1 vocabulary, with an example `openapi.json`.~~ Drafted in `contract/`; revisit after the museum side exists.
 3. Build the museum side: a placeholder element, site config for service URLs, placard states, and the renderer for the v1 vocabulary.
 4. Build the toy FastAPI service and the Playwright stubs.
