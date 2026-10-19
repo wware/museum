@@ -1,8 +1,8 @@
 #!/bin/bash
-# Pre-commit hook: recompile TypeScript when src/*.ts changes and stage the output.
-# Compiled JS in docs/js/ is committed (the Docker image has no Node.js).
+# Pre-commit hook: recompile TypeScript when src/*.ts or sw/*.ts changes and stage the output.
+# Compiled JS in docs/js/ and docs/lab/sw.js is committed (the Docker image has no Node.js).
 
-if git diff --cached --name-only | grep -q '^src/.*\.ts$'; then
+if git diff --cached --name-only | grep -q -E '^(src|sw)/.*\.ts$'; then
     echo "TypeScript files changed, recompiling..."
 
     if ! command -v npm &> /dev/null; then
@@ -21,9 +21,9 @@ if git diff --cached --name-only | grep -q '^src/.*\.ts$'; then
     fi
 
     # Source maps (*.js.map) are git-ignored, so only stage the JS itself
-    git add docs/js/*.js
+    git add docs/js/*.js docs/lab/sw.js
 
-    echo "TypeScript compiled and docs/js/*.js staged."
+    echo "TypeScript compiled and docs/js/*.js and docs/lab/sw.js staged."
 fi
 
 exit 0

@@ -56,10 +56,12 @@
         },
         "label": { "type": "string" },
         "x_label": { "type": "string" },
-        "y_label": { "type": "string" }
+        "y_label": { "type": "string" },
+        "x_min": { "description": "Chart only: fixed left end of the x axis. Omit to fit the data.", "type": "number" },
+        "x_max": { "description": "Chart only: fixed right end of the x axis. Omit to fit the data.", "type": "number" }
       },
       "if": { "properties": { "type": { "not": { "const": "chart" } } } },
-      "then": { "not": { "anyOf": [ { "required": ["x_label"] }, { "required": ["y_label"] } ] } }
+      "then": { "not": { "anyOf": [ { "required": ["x_label"] }, { "required": ["y_label"] }, { "required": ["x_min"] }, { "required": ["x_max"] } ] } }
     },
     "control": {
       "description": "The `x-museum-control` object on an action operation. Parameter types and limits come from the operation's request-body schema, not from here.",

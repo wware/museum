@@ -119,7 +119,7 @@ test("space elevator: release outcome depends on climber height", async ({ page 
 // MkDocs gives every heading an id; an exhibit container with the same id makes
 // getElementById return the heading and the exhibit renders inside it.
 test("exhibit pages have no duplicate element ids", async ({ page }) => {
-    for (const path of ["/mass-spring/", "/gitops-visualizer/", "/orbital-mechanics/"]) {
+    for (const path of ["/mass-spring/", "/gitops-visualizer/", "/orbital-mechanics/", "/lab/checkout-line/"]) {
         await page.goto(path);
         const duplicates = await page.evaluate(() => {
             const seen = new Set<string>();

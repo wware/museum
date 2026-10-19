@@ -1,6 +1,6 @@
 # Remote exhibits: design decisions and next steps
 
-**Status:** design in progress, nothing implemented. Replaces the old HYBRID_ARCHITECTURE.md (Proxmox/Terraform plan), which was deleted.
+**Status:** first slice implemented: the museum side, plus an in-museum service (a service worker) running the toy exhibit at `docs/lab/checkout-line.md`. No outside FastAPI service yet. Replaces the old HYBRID_ARCHITECTURE.md (Proxmox/Terraform plan), which was deleted.
 
 A remote exhibit is one whose behavior comes from an outside service (for now, a FastAPI service running locally). The museum stays static. All heavy machinery (containers, clusters, VMs) lives in the service.
 
@@ -13,7 +13,8 @@ A remote exhibit is one whose behavior comes from an outside service (for now, a
 - **Museum renders data, not markup.** Views consume typed JSON (tree, log, key-value, and so on), so service-supplied strings are inserted as text.
 - **One service can host several exhibits.** Health and contract version are per service. Each exhibit lives under its own id (`/exhibits/{id}/...`), and one `openapi.json` describes them all.
 - **Pages name services by logical id, never by URL.** The base URL for each service comes from site config, so changing where a service runs is a config change, not an edit to every page.
-- **The public GitHub Pages site shows the exhibit as permanently unavailable**, in museum language (for example "This exhibit is only on display at a local branch of the museum"), and explains how to run it locally. The page's text content still shows.
+- **On the public GitHub Pages site, exhibits whose service can't run there are permanently closed**, in museum language ("This exhibit is only on display at a local branch of the museum"), and the page's text still shows. Exhibits served by the in-museum service work on Pages.
+- **The museum has its own exhibit service: a service worker in the visitor's browser.** It runs on any static host (Pages included) at no cost, and answers the contract's requests over real `fetch` calls, so it exercises all the same machinery as an outside service. It lives at `docs/lab/sw.js` with scope `lab/` (a worker only answers pages inside its scope), so in-museum remote exhibits are pages under `docs/lab/`.
 - **First implementation is a toy remote exhibit** to prove the contract end to end, not the gitops reconciler. See `gitops-reconciler-exhibit.md` for that one.
 - **Polling first.** SSE is deferred. Design the state response so it could later be pushed instead of polled without changing what views consume.
 
@@ -55,14 +56,14 @@ FastAPI serves `/docs` (Swagger UI with "Try it out", useful for driving an exhi
 ## Contract files (draft)
 
 - `contract/x-museum.schema.json`: JSON Schema (2020-12, same dialect as OpenAPI 3.1) for the root `x-museum` object, with `$defs` for `x-museum-control`, the `/healthz` and `/exhibits` responses, the state envelope, and the data shape of each view type. Strict about unknown keys, so typos fail.
-- `contract/examples/queue.openapi.json`: a realistic manifest for the toy exhibit, generated from a throwaway FastAPI app (FastAPI 0.149, Pydantic 2.14) rather than written by hand, so it shows exactly what FastAPI emits.
+- `docs/lab/service/openapi.json`: the toy exhibit's manifest, which is both the contract's example and the live manifest the in-museum service serves. It was generated from a throwaway FastAPI app (FastAPI 0.149, Pydantic 2.14), so it shows exactly what FastAPI emits. Chart `x_min`/`x_max` were added by hand afterwards.
 - `contract/examples/queue.state.json`: a matching state response, at a moment where arrivals exceed capacity.
 
 ### What drafting them settled
 
 - **The toy exhibit (tentative): "The checkout line"**, a queue with random arrivals and one to three servers. Sliders for arrival and service rate, a select for the number of servers, buttons for a rush-hour burst, pause, resume and reset. Views: a chart of people waiting, current stats, an event log. It exercises every v1 control type except text and number, disabled actions with reasons, and confirmation.
 - **The state envelope has fixed keys:** `views` (keyed by view name; each view draws `state.views[view.name]`), `actions` (`{enabled, reason}`; an action missing from the map is disabled), and `values` (keyed by action name, then parameter name).
-- **v1 vocabulary.** Controls: button, slider, select, number, text (`multiline` optional). Views: chart (`[x, y]` series), kv (label/value/unit items), log (entries with optional time and level). Tree, code and embed wait for the gitops exhibit.
+- **v1 vocabulary.** Controls: button, slider, select, number, text (`multiline` optional). Views: chart (`[x, y]` series, with optional fixed `x_min`/`x_max`), kv (label/value/unit items), log (entries with optional time and level). Tree, code and embed wait for the gitops exhibit.
 - **Layout for v1 is fixed:** controls in ascending `order`, above the views in manifest order. Anything fancier waits until an exhibit needs it.
 - **`confirm`** on a control makes the museum ask before sending (used for Reset).
 - **Slider steps live in `x-museum-control.step`, not in the request schema.** FastAPI turns `multiple_of=0.1` into `multipleOf: 0.1`, and while Pydantic accepts 0.3 against it, standard JSON Schema validators reject 0.3, 0.7, 2.3 and so on because of floating point. `multipleOf` is only safe for integers.
@@ -95,12 +96,13 @@ These span documents, so the museum (and any contract test for a service) must c
 - **Does Swagger UI display root-level extensions?** With `showExtensions` on it shows extensions on operations and parameters. Unclear whether the top-level `x-museum` section shows anywhere but the raw JSON.
 - **How the museum validates the manifest.** Probably a JSON Schema for the `x-museum` extensions, kept in this repo.
 - **CORS and Chrome's Private Network Access.** A page on one origin calling `http://localhost` needs CORS headers and, in Chrome, a private-network preflight answer. Serving the museum and the service behind one nginx (`/lab/` proxied to the service, via docker compose) avoids both.
-- **Testing.** Playwright stubs the service endpoints so CI covers every placard state and a working exhibit without running Python. A tiny fake FastAPI service is for local development.
+- **Testing.** Done for the museum side: `tests/remote-exhibits.spec.ts` runs the in-museum service for real and stubs an outside service for every placard state. A FastAPI version of the toy is still to come.
 - **Should the contract checker be committed?** The cross-document rules above could become a script (or a pytest plugin) that services run in their own CI against their generated `openapi.json`.
 
 ## Next steps
 
 1. ~~Pick the toy exhibit.~~ Tentatively "The checkout line" (see "Contract files").
 2. ~~Specify the `x-museum` extensions and the v1 vocabulary, with an example `openapi.json`.~~ Drafted in `contract/`; revisit after the museum side exists.
-3. Build the museum side: a placeholder element, site config for service URLs, placard states, and the renderer for the v1 vocabulary.
-4. Build the toy FastAPI service and the Playwright stubs.
+3. ~~Build the museum side: a placeholder element, site config for service URLs, placard states, and the renderer for the v1 vocabulary.~~ Done (`src/remote-exhibits.ts`), along with the in-museum service worker and Playwright tests for every placard state.
+4. ~~Playwright stubs.~~ Done. Still to do: a real FastAPI version of the toy exhibit, run locally, passing the same tests.
+5. Open question from implementing: the worker's input limits are duplicated from `openapi.json`. The worker could read its own manifest at startup instead.

@@ -58,7 +58,7 @@ install: ## Install all dependencies (Python + Node.js)
 
 clean: ## Clean build artifacts
 	rm -rf site/
-	rm -rf docs/js/*.js docs/js/*.js.map
+	rm -rf docs/js/*.js docs/js/*.js.map docs/lab/sw.js docs/lab/sw.js.map
 	docker rmi $(IMAGE_NAME) 2>/dev/null || true
 
 rebuild: clean build ## Clean and rebuild everything

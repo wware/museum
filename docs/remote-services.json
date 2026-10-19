@@ -1,0 +1,9 @@
+{
+  "services": {
+    "museum": {
+      "base_url": "lab/service/",
+      "worker": "lab/sw.js",
+      "scope": "lab/"
+    }
+  }
+}

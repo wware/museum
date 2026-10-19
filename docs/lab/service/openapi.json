@@ -514,7 +514,9 @@
             "type": "chart",
             "label": "People waiting",
             "x_label": "seconds ago",
-            "y_label": "people"
+            "y_label": "people",
+            "x_min": -60,
+            "x_max": 0
           },
           {
             "name": "stats",
