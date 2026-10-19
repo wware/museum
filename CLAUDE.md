@@ -6,7 +6,7 @@ This isn't documentation, it's a **museum**. Each exhibit should:
 - Demonstrate a concept through interaction, not explanation
 - Teach better than static text ever could
 - Invite exploration and experimentation
-- Be self-contained and client-side (for now - see HYBRID_ARCHITECTURE.md for future plans)
+- Be self-contained and client-side (for now - see `notes/remote-exhibits.md` for future plans)
 
 **Rule of thumb**: If it can be fully explained in text alone, it's probably not a museum piece.
 
@@ -25,8 +25,8 @@ This isn't documentation, it's a **museum**. Each exhibit should:
 - Proper D3.js type definitions
 - Modern ES6+ features with type checking
 
-### Future: Hybrid (Proposal)
-See `HYBRID_ARCHITECTURE.md` for plans to add optional API-backed exhibits for real infrastructure demonstrations.
+### Future: Remote Exhibits (Proposal)
+See `notes/remote-exhibits.md` for the design of remote exhibits backed by an outside service (manifest-driven, nothing implemented yet).
 
 ## Adding a New Exhibit
 
@@ -421,7 +421,7 @@ museum/
 ├── BUILD.md               # Deployment guide
 ├── INSTALL.md             # Installation guide
 ├── CLAUDE.md              # This file
-└── HYBRID_ARCHITECTURE.md # Future API proposal
+└── notes/                 # Design notes (remote exhibits, gitops_reconciler); not published
 ```
 
 ## Continuous Integration
@@ -550,7 +550,7 @@ extra_javascript:
 ```
 
 ### How do I share state between exhibits?
-Currently: Don't. Each exhibit should be independent. If you need shared infrastructure, see `HYBRID_ARCHITECTURE.md`.
+Currently: Don't. Each exhibit should be independent. If you need shared infrastructure, see `notes/remote-exhibits.md`.
 
 ### What about mobile?
 Material theme is responsive by default. Test your exhibit on mobile viewports. Keep in mind:
@@ -569,10 +569,8 @@ Material theme is responsive by default. Test your exhibit on mobile viewports. 
 
 ## Future Directions
 
-See `HYBRID_ARCHITECTURE.md` for plans to add:
-- API-backed exhibits for real infrastructure
-- K8s/GitOps demonstrations
-- Proxmox integration
-- WebSocket live updates
+See `notes/remote-exhibits.md` and `notes/gitops-reconciler-exhibit.md` for plans to add:
+- Remote exhibits driven by a manifest from an outside service, starting with a toy exhibit
+- A gitops_reconciler exhibit (desired-state edits, convergence, drift, promotion)
 
 For now, focus on client-side demonstrations that push the boundaries of what's possible in the browser.
