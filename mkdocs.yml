@@ -35,6 +35,7 @@ extra_javascript:
   - js/d3-cluster-visualizer.js
   - js/mass-spring.js
   - js/orbital-mechanics.js
+  - js/remote-exhibits.js
   - js/mathjax-config.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
@@ -62,5 +63,7 @@ nav:
       - Mass-Spring-Damper System: mass-spring.md
       - GitOps Cluster Visualizer: gitops-visualizer.md
       - Orbits and the Space Elevator: orbital-mechanics.md
+  - Lab:
+      - The Checkout Line: lab/checkout-line.md
   - Dashboard: dashboard.md
   - About: about.md

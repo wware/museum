@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Interactive technical documentation museum with TypeScript visualizations",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "tsc && tsc -p tsconfig.sw.json",
+    "watch": "tsc --watch & tsc -p tsconfig.sw.json --watch",
     "test:e2e": "playwright test",
-    "clean": "rm -rf docs/js/*.js docs/js/*.js.map"
+    "clean": "rm -rf docs/js/*.js docs/js/*.js.map docs/lab/sw.js docs/lab/sw.js.map"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

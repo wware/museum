@@ -6,7 +6,7 @@ This isn't documentation, it's a **museum**. Each exhibit should:
 - Demonstrate a concept through interaction, not explanation
 - Teach better than static text ever could
 - Invite exploration and experimentation
-- Be self-contained and client-side (for now - see HYBRID_ARCHITECTURE.md for future plans)
+- Be self-contained and client-side (for now - see `notes/remote-exhibits.md` for future plans)
 
 **Rule of thumb**: If it can be fully explained in text alone, it's probably not a museum piece.
 
@@ -25,8 +25,14 @@ This isn't documentation, it's a **museum**. Each exhibit should:
 - Proper D3.js type definitions
 - Modern ES6+ features with type checking
 
-### Future: Hybrid (Proposal)
-See `HYBRID_ARCHITECTURE.md` for plans to add optional API-backed exhibits for real infrastructure demonstrations.
+### Remote Exhibits (the Lab wing)
+Some exhibits get their behavior from an exhibit service instead of running on the page. The service describes the exhibit in its OpenAPI 3.1 document with `x-museum` extensions, and `src/remote-exhibits.ts` builds the controls and views from that description. Design: `notes/remote-exhibits.md`. Contract: `contract/x-museum.schema.json`.
+
+- A page marks a spot with `<div class="remote-exhibit" data-service="museum" data-exhibit="queue"></div>`. No id, so it can't collide with a heading.
+- `docs/remote-services.json` maps service ids to base URLs. Changing where a service runs is an edit to that file only.
+- The `museum` service is the museum's own: a service worker (`sw/sw.ts`, compiled to `docs/lab/sw.js`) that answers requests under `lab/service/` like a FastAPI service would. Its manifest is the static file `docs/lab/service/openapi.json`.
+- **A service worker only answers requests from pages inside its scope.** That's why it lives at `docs/lab/sw.js` with scope `lab/`: exhibits using the in-museum service must be pages under `docs/lab/`. Pages elsewhere aren't controlled by it, so a bug in the worker can't break the rest of the site.
+- The worker's input limits (in `sw/sw.ts`) must match the request schemas in `docs/lab/service/openapi.json`.
 
 ## Adding a New Exhibit
 
@@ -204,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 **Solution**: Give containers ids that no heading would produce, such as `orbit-sim`. The smoke tests fail on duplicate ids.
 
 ### ❌ Problem: Hand-written JS in `docs/js/` disappears
-**Cause**: `make clean` and `npm run clean` delete `docs/js/*.js`. Anything in that directory must be compiled from `src/*.ts` (even small config like `mathjax-config.ts`), never written by hand.
+**Cause**: `make clean` and `npm run clean` delete `docs/js/*.js` and `docs/lab/sw.js`. Anything in that directory must be compiled from `src/*.ts` (even small config like `mathjax-config.ts`), never written by hand.
 
 ## TypeScript Development Workflow
 
@@ -217,6 +223,7 @@ museum/
 │   ├── mass-spring.ts           # Physics simulation
 │   ├── your-exhibit.ts          # Your new exhibit
 │   └── globals.d.ts             # Global type declarations (d3)
+├── sw/sw.ts                     # Service worker for the in-museum exhibit service (tsconfig.sw.json)
 ├── docs/js/                     # Compiled JavaScript (committed; .js.map files are git-ignored)
 │   ├── museum-features.js
 │   ├── d3-cluster-visualizer.js
@@ -250,7 +257,9 @@ mkdocs serve           # Start server
 
 ### Git Pre-commit Hook (one-time setup per clone)
 
-Compiled JS in `docs/js/` is committed because the Docker image has no Node.js. A pre-commit hook keeps it in sync: when any `src/*.ts` file is staged, it runs `npm run build` and stages `docs/js/*.js`. If compilation fails, the commit is blocked.
+Compiled JS in `docs/js/` and `docs/lab/sw.js` is committed because the Docker image has no Node.js. A pre-commit hook keeps it in sync: when any `src/*.ts` or `sw/*.ts` file is staged, it runs `npm run build` and stages the compiled output. If compilation fails, the commit is blocked.
+
+`npm run build` runs two compiles: `tsc` for page scripts (`src/` to `docs/js/`, DOM types) and `tsc -p tsconfig.sw.json` for the service worker (`sw/` to `docs/lab/`, WebWorker types). The two type libraries conflict, so they can't share one compile.
 
 Git does not track `.git/hooks/`, so the hook lives in `.githooks/pre-commit`. After cloning, run once:
 
@@ -421,7 +430,7 @@ museum/
 ├── BUILD.md               # Deployment guide
 ├── INSTALL.md             # Installation guide
 ├── CLAUDE.md              # This file
-└── HYBRID_ARCHITECTURE.md # Future API proposal
+└── notes/                 # Design notes (remote exhibits, gitops_reconciler); not published
 ```
 
 ## Continuous Integration
@@ -443,7 +452,7 @@ npm run test:e2e
 
 - `mkdocs.test.yml` adds a `site_url`. Material's instant navigation only activates when `site_url` is set (it reads `sitemap.xml`), and `mkdocs serve` sets one automatically, so a plain static build can't reproduce instant-navigation bugs. The test build can.
 - Behind a TLS-intercepting proxy, Playwright's Chromium rejects the d3 and MathJax CDN certificates and every exhibit fails to draw. Run with `PW_IGNORE_HTTPS_ERRORS=1 npm run test:e2e`. Never set this in CI.
-- Add a test to `tests/smoke.spec.ts` for each new exhibit.
+- Add a test to `tests/smoke.spec.ts` for each new exhibit. Remote-exhibit tests are in `tests/remote-exhibits.spec.ts`: some use the real service worker, others block service workers and stub an "outside" service with `page.route` (Playwright's routing can't see requests a service worker answers).
 
 ## Building & Testing
 
@@ -550,7 +559,7 @@ extra_javascript:
 ```
 
 ### How do I share state between exhibits?
-Currently: Don't. Each exhibit should be independent. If you need shared infrastructure, see `HYBRID_ARCHITECTURE.md`.
+Currently: Don't. Each exhibit should be independent. If you need shared infrastructure, see `notes/remote-exhibits.md`.
 
 ### What about mobile?
 Material theme is responsive by default. Test your exhibit on mobile viewports. Keep in mind:
@@ -569,10 +578,8 @@ Material theme is responsive by default. Test your exhibit on mobile viewports. 
 
 ## Future Directions
 
-See `HYBRID_ARCHITECTURE.md` for plans to add:
-- API-backed exhibits for real infrastructure
-- K8s/GitOps demonstrations
-- Proxmox integration
-- WebSocket live updates
+See `notes/remote-exhibits.md` and `notes/gitops-reconciler-exhibit.md` for plans to add:
+- Remote exhibits served by a real outside FastAPI service (the in-museum service-worker version exists)
+- A gitops_reconciler exhibit (desired-state edits, convergence, drift, promotion)
 
 For now, focus on client-side demonstrations that push the boundaries of what's possible in the browser.

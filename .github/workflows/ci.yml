@@ -33,10 +33,10 @@ jobs:
       # Compiled JS is committed (the Docker image has no Node.js), so it must match src/
       - name: Verify committed JS is up to date
         run: |
-          if [ -n "$(git status --porcelain -- docs/js)" ]; then
-            echo "docs/js is out of date. Run 'npm run build' and commit the result:"
-            git status --porcelain -- docs/js
-            git diff -- docs/js | head -50
+          if [ -n "$(git status --porcelain -- docs/js docs/lab/sw.js)" ]; then
+            echo "Compiled JS is out of date. Run 'npm run build' and commit the result:"
+            git status --porcelain -- docs/js docs/lab/sw.js
+            git diff -- docs/js docs/lab/sw.js | head -50
             exit 1
           fi
 
