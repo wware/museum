@@ -9,7 +9,7 @@
     "clean": "rm -rf docs/js/*.js docs/js/*.js.map docs/lab/sw.js docs/lab/sw.js.map"
   },
   "devDependencies": {
-    "@playwright/test": "^1.64.0",
+    "@playwright/test": "^1.64.1",
     "@types/d3": "^7.4.3",
     "typescript": "^7.0.2"
   },
