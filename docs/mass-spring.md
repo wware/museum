@@ -1,8 +1,10 @@
 # Interactive Mass-Spring-Damper System
 
+<!-- web -->
 <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
 <strong>🎯 Demonstration Goal:</strong> Explore the behavior of a damped harmonic oscillator using symplectic Velocity Verlet integration.
 </div>
+<!-- /web -->
 
 ## The Physics
 
@@ -25,8 +27,12 @@ $$
 
 The **Velocity Verlet** integration method is **symplectic**, meaning it conserves energy over long time periods. Unlike simple Euler integration, which accumulates error and causes the system to gain or lose energy over time, Velocity Verlet maintains the Hamiltonian structure of the system.
 
+<!-- web -->
 **Try this**: Set the friction coefficient to `0.00` and watch the system oscillate indefinitely without losing amplitude — perfect energy conservation!
 
+<!-- /web -->
+
+<!-- web -->
 ## Interactive Simulation
 
 <div id="mass-spring-exhibit" style="width: 100%; margin: 20px 0;">
@@ -56,6 +62,14 @@ The **Velocity Verlet** integration method is **symplectic**, meaning it conserv
 - **Set f=0.00** to see perfect energy conservation
 - **Increase stiffness (k)** to make oscillations faster
 - **Increase mass (m)** to make oscillations slower
+
+<!-- /web -->
+
+<!-- print
+The online museum has this system as a live simulation: drag the block,
+change the mass, stiffness and friction with sliders, and watch the motion
+respond. Try it at <https://wware.github.io/museum/mass-spring/>.
+-->
 
 ## The Algorithm
 
@@ -91,6 +105,9 @@ Try answering these questions by experimenting with the simulation:
 2. How does the oscillation frequency change with mass and stiffness?
 3. At what friction level does the system become overdamped (slow return, no oscillation)?
 
+<!-- web -->
 ---
 
 *This exhibit demonstrates why interactive visualizations beat static diagrams for learning dynamics.*
+
+<!-- /web -->

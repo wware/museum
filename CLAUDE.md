@@ -439,6 +439,7 @@ GitHub Actions config lives in `.github/`:
 
 - `workflows/ci.yml` runs on pushes to `main` and on PRs. The **build** job compiles TypeScript, fails if the committed `docs/js/` differs from the compiled output, runs `mkdocs build --strict`, and builds the Docker image. The **smoke** job runs the Playwright tests in `tests/`.
 - `workflows/pages.yml` publishes the site to GitHub Pages on pushes to `main`. One-time setup: Settings > Pages > Source: **GitHub Actions**.
+- `workflows/book.yml` runs `make book-letter` when a `book-*` tag is pushed and attaches the 8.5x11 PDF to a GitHub Release for that tag. Cut an edition with `git tag book-v1 && git push origin book-v1`.
 - `dependabot.yml` opens weekly update PRs for npm, pip, Actions and the Docker base image. A TypeScript bump that changes compiled output will fail the stale-JS check until you run `npm run build` and commit.
 
 ### Running the smoke tests locally
@@ -453,6 +454,33 @@ npm run test:e2e
 - `mkdocs.test.yml` adds a `site_url`. Material's instant navigation only activates when `site_url` is set (it reads `sitemap.xml`), and `mkdocs serve` sets one automatically, so a plain static build can't reproduce instant-navigation bugs. The test build can.
 - Behind a TLS-intercepting proxy, Playwright's Chromium rejects the d3 and MathJax CDN certificates and every exhibit fails to draw. Run with `PW_IGNORE_HTTPS_ERRORS=1 npm run test:e2e`. Never set this in CI.
 - Add a test to `tests/smoke.spec.ts` for each new exhibit. Remote-exhibit tests are in `tests/remote-exhibits.spec.ts`: some use the real service worker, others block service workers and stub an "outside" service with `page.route` (Playwright's routing can't see requests a service worker answers).
+
+## Printed Editions
+
+`book/` turns museum pages into a printed book: a 6x9 PDF for Lulu, an 8.5x11 PDF for spiral binding, and an EPUB. It's self-contained; nothing outside this repo is needed except pandoc, xelatex and makeindex (plus ImageMagick for the cover). Design and open questions: `notes/static-books.md`.
+
+```bash
+make book          # 6x9 PDF + EPUB in book/build/
+make book-letter   # 8.5x11 PDF in book/build/
+make -C book cover SPINE=0.3   # 6x9 cover wrap; spine width from Lulu's calculator
+```
+
+- `book/book.yml` lists the pages, in order, under Part headings. Each page's `# Title` becomes a chapter.
+- `book/assemble.py` filters each page into `book/build/text.md`. Mark up pages like this:
+
+```markdown
+<!-- web -->
+Live demo, styled HTML, "drag the block" instructions
+<!-- /web -->
+
+<!-- print
+Static figure, caption, or a pointer to the live exhibit
+-->
+```
+
+- A print block is a single HTML comment, so the website hides it without a plugin. Markers go on lines of their own, with blank lines around them.
+- Outside web blocks, book-bound pages must be plain pandoc markdown: no raw HTML, no Material-only syntax (`!!! note`, tabs, `attr_list`). `assemble.py` warns about raw HTML and about code lines over 65 characters (the 6x9 text width).
+- The title page records the commit (`git describe`) the book was built from.
 
 ## Building & Testing
 

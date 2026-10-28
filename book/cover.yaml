@@ -1,0 +1,13 @@
+# Cover wrap content for the 6x9 edition (see make_cover_wrap.sh).
+# front_image is relative to this file.
+title: "Museum of Arcane Curiosities"
+author: "Will Ware"
+spine_text: "Museum of Arcane Curiosities    Will Ware"
+front_image: "cover-front.jpg"
+front_image_crop: "scale_and_center"
+title_color: "#ffffff"
+spine_width_inches: 0.25
+back_text: >
+  Every exhibit in the Museum of Arcane Curiosities is a live demonstration
+  you can push, drag and break. This is the printed edition: the same
+  exhibits, captured as a snapshot of the museum at one moment.

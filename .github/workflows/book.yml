@@ -1,0 +1,46 @@
+name: Book edition
+
+# Pushing a book-* tag (git tag book-v1 && git push origin book-v1) builds
+# the 8.5x11 edition from that commit and attaches it to a GitHub Release
+# for the tag.
+on:
+  push:
+    tags: ["book-*"]
+
+permissions:
+  contents: write
+
+jobs:
+  letter:
+    name: Build letter edition
+    runs-on: ubuntu-latest
+    steps:
+      # Full history and tags, so the title page's git describe names the tag
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pandoc and LaTeX
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            pandoc \
+            texlive-xetex \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            lmodern \
+            python3-yaml
+
+      - name: Build letter edition
+        run: make book-letter
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cp book/build/museum-letter.pdf "museum-letter-${TAG}.pdf"
+          gh release create "$TAG" "museum-letter-${TAG}.pdf" \
+            --verify-tag \
+            --title "Book edition ${TAG}" \
+            --notes "8.5x11 spiral-bound edition built from ${GITHUB_SHA}."

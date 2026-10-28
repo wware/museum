@@ -1,0 +1,6 @@
+% makeindex style file
+indent_length 2
+indent_space "\t\t"
+delim_0 ", "
+delim_1 ", "
+delim_2 ", "

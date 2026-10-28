@@ -1,0 +1,15 @@
+# Which museum pages go into the book, and in what order.
+# Paths are relative to docs/. Each page's "# Title" becomes a chapter;
+# add "short:" for a shorter running header.
+title: "Museum of Arcane Curiosities"
+subtitle: "Interactive Technical Demonstrations, in Print"
+author: Will Ware
+rights: © 2026 Will Ware
+language: en-US
+live_url: https://wware.github.io/museum/
+
+parts:
+  - title: "Part I: Demonstrations"
+    chapters:
+      - page: mass-spring.md
+        short: Mass-Spring-Damper System

@@ -1,0 +1,29 @@
+\usepackage{makeidx}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+% Wrap long lines in code blocks instead of letting them run off the
+% page: Highlighting is pandoc's environment for blocks with a language
+% tag, verbatim is for plain ``` blocks
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  breaklines,breaksymbolleft={},
+  fontsize=\small,
+  commandchars=\\\{\}
+}
+\DefineVerbatimEnvironment{verbatim}{Verbatim}{
+  breaklines,breaksymbolleft={},
+  fontsize=\small
+}
+\usepackage{idxlayout}
+\idxlayout{columns=2, columnsep=2em}
+\makeindex
+
+% Give the bibliography a page break at the top-level (part) heading level
+\AtBeginEnvironment{CSLReferences}{%
+  \backmatter
+  \clearpage
+  \part*{References}
+  \addcontentsline{toc}{part}{References}
+}

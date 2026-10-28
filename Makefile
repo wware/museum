@@ -1,4 +1,4 @@
-.PHONY: build run dev clean stop help ts-build ts-watch ts-check
+.PHONY: build run dev clean stop help ts-build ts-watch ts-check book book-letter
 
 IMAGE_NAME = arcane-museum
 CONTAINER_NAME = arcane-museum-server
@@ -59,7 +59,14 @@ install: ## Install all dependencies (Python + Node.js)
 clean: ## Clean build artifacts
 	rm -rf site/
 	rm -rf docs/js/*.js docs/js/*.js.map docs/lab/sw.js docs/lab/sw.js.map
+	rm -rf book/build/
 	docker rmi $(IMAGE_NAME) 2>/dev/null || true
+
+book: ## Build the 6x9 book PDF and EPUB (book/build/)
+	$(MAKE) -C book
+
+book-letter: ## Build the 8.5x11 spiral-bound book PDF (book/build/)
+	$(MAKE) -C book letter
 
 rebuild: clean build ## Clean and rebuild everything
 
